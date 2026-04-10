@@ -14,7 +14,7 @@ type GeminiResponse = {
   }
 }
 
-const MODEL = 'emma-4-31B-it'
+const MODEL = 'gemma-4-31B-it'
 
 export async function askGemini(messages: ChatMessage[]): Promise<string> {
   const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY
