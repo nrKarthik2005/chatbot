@@ -14,7 +14,8 @@ type GeminiResponse = {
   }
 }
 
-const MODEL = 'gemma-4-31B-it'
+const MODEL_ID = import.meta.env.VITE_GEMINI_MODEL || 'gemma-4-31b-it'
+const GENERATE_CONTENT_API = 'generateContent'
 
 export async function askGemini(messages: ChatMessage[]): Promise<string> {
   const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY
@@ -24,7 +25,7 @@ export async function askGemini(messages: ChatMessage[]): Promise<string> {
   }
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:${GENERATE_CONTENT_API}?key=${apiKey}`,
     {
       method: 'POST',
       headers: {
