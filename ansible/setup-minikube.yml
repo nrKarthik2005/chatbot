@@ -1,6 +1,6 @@
 ---
 - name: Install Docker and Minikube using Docker driver
-  hosts: local
+  hosts: minikube_hosts
   become: true
   vars:
     minikube_version: v1.35.0

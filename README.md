@@ -41,16 +41,26 @@ Open http://localhost:8080
 
 ## 3) Ansible: Setup Minikube In Docker Driver
 
-The Ansible playbook targets Ubuntu/Debian Linux.
+Use the ephemeral toolbox container instead of installing Ansible directly on host.
+The container includes both Ansible and kubectl, and mounts your current directory to /workspace.
 
-Install Ansible and run:
+PowerShell (from any folder inside this repo):
 
-pip install -r ansible/requirements.txt
-ansible-playbook -i ansible/inventory.ini ansible/setup-minikube.yml --ask-become-pass
+./run-toolbox.ps1
 
-Check cluster:
+Run the Minikube setup playbook from the container:
 
-kubectl get nodes
+./run-toolbox.ps1 ansible-playbook -i ansible/inventory.ini ansible/setup-minikube.yml --ask-become-pass
+
+Run kubectl from the same toolbox container:
+
+./run-toolbox.ps1 kubectl get nodes
+
+Linux/macOS:
+
+./run-toolbox.sh ansible-playbook -i ansible/inventory.ini ansible/setup-minikube.yml --ask-become-pass
+
+Before running playbook, update ansible/inventory.ini with your Linux target host details.
 
 ## 4) GitHub Actions CI/CD to Docker Hub
 
