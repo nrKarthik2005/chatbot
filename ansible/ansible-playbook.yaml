@@ -1,0 +1,39 @@
+---
+- name: DevOps Setup Demo
+  hosts: localhost
+  connection: local
+  become: yes
+
+  vars:
+    docker_package_name: "{{ 'docker.io' if ansible_facts['os_family'] == 'Debian' else 'docker' }}"
+
+  tasks:
+
+    - name: Update apt cache on Debian
+      apt:
+        update_cache: yes
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Install curl and Docker package
+      package:
+        name:
+          - curl
+          - "{{ docker_package_name }}"
+        state: present
+
+    - name: Gather service facts
+      service_facts:
+
+    - name: Start Docker service when service manager is available
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      when:
+        - ansible_facts['service_mgr'] is defined
+        - ansible_facts['service_mgr'] != 'unknown'
+        - ansible_facts['services'] is defined
+        - "'docker.service' in ansible_facts['services'] or 'docker' in ansible_facts['services']"
+
+    - name: Check Kubernetes files exist
+      command: ls
