@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-frontend
+  labels:
+    app: chatbot-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-frontend
+  template:
+    metadata:
+      labels:
+        app: chatbot-frontend
+    spec:
+      containers:
+        - name: chatbot-frontend
+          image: urk23cs1044/chatbot-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-frontend
+spec:
+  type: NodePort
+  selector:
+    app: chatbot-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 30080

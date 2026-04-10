@@ -1,0 +1,69 @@
+---
+- name: Install Docker and Minikube using Docker driver
+  hosts: local
+  become: true
+  vars:
+    minikube_version: v1.35.0
+    kubectl_version: v1.32.2
+    target_user: "{{ lookup('env', 'SUDO_USER') | default(ansible_env.USER, true) }}"
+    target_home: "{{ '/root' if target_user == 'root' else '/home/' + target_user }}"
+
+  tasks:
+    - name: Install required packages
+      ansible.builtin.apt:
+        update_cache: true
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - conntrack
+          - curl
+          - docker.io
+        state: present
+
+    - name: Ensure docker service is enabled and running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add target user to docker group
+      ansible.builtin.user:
+        name: "{{ target_user }}"
+        groups: docker
+        append: true
+
+    - name: Install kubectl
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
+        dest: /usr/local/bin/kubectl
+        mode: "0755"
+
+    - name: Install minikube
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/minikube/releases/{{ minikube_version }}/minikube-linux-amd64"
+        dest: /usr/local/bin/minikube
+        mode: "0755"
+
+    - name: Start minikube with docker driver
+      ansible.builtin.command: minikube start --driver=docker --cpus=2 --memory=4096 --force
+      become_user: "{{ target_user }}"
+      environment:
+        HOME: "{{ target_home }}"
+
+    - name: Set kubectl context to minikube
+      ansible.builtin.command: kubectl config use-context minikube
+      become_user: "{{ target_user }}"
+      environment:
+        HOME: "{{ target_home }}"
+
+    - name: Show minikube status
+      ansible.builtin.command: minikube status
+      become_user: "{{ target_user }}"
+      environment:
+        HOME: "{{ target_home }}"
+      register: minikube_status
+      changed_when: false
+
+    - name: Print minikube status
+      ansible.builtin.debug:
+        var: minikube_status.stdout_lines
