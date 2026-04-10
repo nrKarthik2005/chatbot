@@ -1,0 +1,11 @@
+docker run --rm -v "${PWD}:/workspace" -w /workspace cytopia/ansible:latest ansible-playbook -i ansible/inventory.ini ansible/ansible-playbook.yaml
+
+
+minikube start
+
+
+
+minikube kubectl -- set image deployment/chatbot-frontend chatbot-frontend=urk23cs1044/chatbot-frontend:latest
+minikube kubectl -- rollout restart deployment/chatbot-frontend
+minikube kubectl -- rollout status deployment/chatbot-frontend
+minikube service chatbot-frontend --url
